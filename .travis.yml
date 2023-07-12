@@ -1,0 +1,31 @@
+# Anytime we use Docker, we must have superuser permissions to execute the build 
+sudo: required
+
+# STEP 1: Tell Travis we need a copy of Docker running 
+# Travis CI must understand that we need the Docker CLI pre-installed 
+services:
+  # Travis CI will automatically install a copy of Docker into our container 
+  - docker
+
+
+# STEP 2: Build our image using Dockerfile.dev 
+# Series of different commands that get executed before our tests are run 
+# In this case, we need to build our Docker image before the tests are run 
+#   So, we need the commands to be executed to build our Docker image 
+#   If we use this command, 'docker build -f Dockerfile.dev .' 
+#     we get back the Image ID for us to copy and paste to run the container. 
+#     This is a manual process and with CI/CD, processes are run automatically. 
+#   Therefore, use a tag on the image that is created in order to remove the need for the Image ID  
+before_install:
+  - docker build -t mrlebeau315/docker-react -f Dockerfile.dev .
+
+
+# STEP 3: Tell Travis how to run our tests suite 
+# Series of commands that need to be executed to run our tests suite 
+# Travis CI is going to watch the outputs of each of these commands 
+#   Any returned value other than 0 means that the tests suite failed 
+# Note that Travis CI assumes that our tests will run and exit automatically 
+#   Our tests run once and then presents us with a list of options, and then hangs and never exits 
+script:
+  - docker run -e CI=true mrlebeau315/docker-react npm run test
+
