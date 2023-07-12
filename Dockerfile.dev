@@ -1,0 +1,26 @@
+# Only used when using the app in a development environment 
+
+FROM node:16-alpine
+
+USER node
+
+RUN mkdir -p /home/node/app
+
+# Sets the working directory 
+WORKDIR '/home/node/app'
+
+# Copies package.json into the working directory '/app'
+# COPY package.json .
+COPY --chown=node:node ./package.json ./
+
+# Installation of dependencies 
+RUN npm install 
+
+# Once the dependencies have been installed, then we copy over all the files from our project directory 
+# COPY . .
+COPY --chown=node:node ./ ./
+
+# Run command to start up our project with 'cmd'
+CMD ["npm", "start"]
+
+

@@ -1,0 +1,48 @@
+version: '3'
+
+# List of services or containers that are going to be created when we run Docker Compose up 
+# *** Each of the services listed below is one container each *** 
+services:
+  # Call the service anything you want, as long as it makes sense 
+  web:
+    # Specify the Docker file that we're going to use to create the initial container 
+    # Previously, we used "build: ." but that assumes that we have a Dockerfile inside of the current directory
+    # Right now, we have Dockerfile.dev which is not the same as Dockerfile 
+    # build: .
+    build:
+      # Context option specifies where we want all the files and folders for this image to be pulled from: 
+      #   the current working directory
+      context: .
+
+      # Specify the dockerfile to use 
+      dockerfile: Dockerfile.dev
+
+    # Specify the ports where the "-" indicates a list 
+    # Mapping is Outside_the_container to Inside_the_container 
+    ports:
+      - "3000:3000"
+
+    # Shorthand for specifying our different volumes 
+    volumes:
+      # This volume says: Do not try to map a folder up against /app/node_modules inside the container 
+      - /home/node/app/node_modules
+
+      # "." indicates the current working directory 
+      # We want to map the folder outside of the container into the app folder inside the container 
+      - .:/home/node/app
+  # Second service whose sole purpose is to run the test suite 
+  # Note that the Tests Suite does not make use of any ports 
+  tests:
+    build: 
+      context: .
+      dockerfile: Dockerfile.dev
+    volumes:
+      - /home/node/app/node_modules
+      - .:/home/node/app
+    
+    # Override the starting command when the test container is created 
+    #   Make sure that it starts with 'npm run test' and not 'npm run start'
+    # Write out all the different parts of that command in a set of quotes in a little array 
+    command: ["npm", "run", "test"]
+
+
